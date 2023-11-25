@@ -1,6 +1,11 @@
 package Model;
 
 import java.time.LocalDate;
+import java.util.List;
+
+import Controller.PC_Controller;
+import Controller.UserController;
+import Repository.UserDAO;
 
 public class User {
 	private int userID;
@@ -29,6 +34,10 @@ public class User {
 		this.userRole = userRole;
 	}
 	
+
+	public User() {
+		
+	}
 
 	public int getUserID() {
 		return userID;
@@ -76,6 +85,26 @@ public class User {
 
 	public void setUserRole(String userRole) {
 		this.userRole = userRole;
+	}
+	
+	public List<User> getAllStaff(){
+		return UserDAO.getUserDAO().getAllStaff();
+	}
+
+	public User getUserDetail(int id) {
+		return UserDAO.getUserDAO().select(id);
+	}
+
+	public void changeUserRole(User u) {
+		UserDAO.getUserDAO().update(u);
+	}
+
+	public void addNewUser(User user) {
+		UserDAO.getUserDAO().save(this);
+	}
+
+	public User getUserByName(String name) {
+		return UserDAO.getUserDAO().select(name);
 	}
 
 }

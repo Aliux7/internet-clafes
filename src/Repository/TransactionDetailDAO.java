@@ -7,10 +7,22 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import Controller.PC_Controller;
 import Model.TransactionDetail;
 
 public class TransactionDetailDAO extends AbstractGenericDAO<TransactionDetail>{
 
+	private volatile static TransactionDetailDAO instance;
+	
+	public static TransactionDetailDAO getTransactionDetailDAO() {
+		if(instance == null) {
+			synchronized (TransactionDetailDAO.class) {
+				if(instance == null) instance = new TransactionDetailDAO();
+			}
+		}
+		return instance;
+	}
+	
 	public TransactionDetailDAO() {
 		super(TransactionDetail.class);
 		// TODO Auto-generated constructor stub
@@ -39,6 +51,21 @@ public class TransactionDetailDAO extends AbstractGenericDAO<TransactionDetail>{
 	public List<TransactionDetail> findAllByUser(int id) {
 		List<TransactionDetail> entities = new ArrayList<>();
 		String query = "SELECT * FROM " + getTableName() +" WHERE CustomerID = '" + id+ "'";
+		try { 
+			PreparedStatement statement = connect.prepare(query);
+			ResultSet resultSet = statement.executeQuery(query); 
+			while (resultSet.next()) {
+				entities.add(mapResultSetToObject(resultSet));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return entities;
+	}
+	
+	public List<TransactionDetail> findAllByID(int id) {
+		List<TransactionDetail> entities = new ArrayList<>();
+		String query = "SELECT * FROM " + getTableName() +" WHERE TransactionID = '" + id+ "'";
 		try { 
 			PreparedStatement statement = connect.prepare(query);
 			ResultSet resultSet = statement.executeQuery(query); 

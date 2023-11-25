@@ -3,6 +3,7 @@ package Repository;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.reflect.Field;
@@ -73,7 +74,7 @@ public abstract class AbstractGenericDAO<T> implements GenericDAO<T> {
 	    columns.setLength(columns.length() - 2);
 	    values.setLength(values.length() - 2);
 	    String query = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
-	    
+//	    System.out.println(query);
 	    try {
 	        PreparedStatement statement = connect.prepare(query);
 	        
@@ -90,6 +91,47 @@ public abstract class AbstractGenericDAO<T> implements GenericDAO<T> {
 	    }
 	}
 
+	public int saveAndGetID(T entity) {
+		String tableName = getTableName();
+		StringBuilder columns = new StringBuilder();
+	    StringBuilder values = new StringBuilder();
+	    
+	    Field[] fields = entity.getClass().getDeclaredFields();
+
+	    for (Field field : fields) {
+	        String fieldName = field.getName();
+	        columns.append(fieldName).append(", ");
+	        values.append("?, ");
+	    }
+	    
+	    columns.setLength(columns.length() - 2);
+	    values.setLength(values.length() - 2);
+	    String query = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
+	    System.out.println(query);
+	    try {
+	        PreparedStatement statement = connect.prepare(query, Statement.RETURN_GENERATED_KEYS);
+	        
+	        for (int i = 0; i < fields.length; i++) {
+	            fields[i].setAccessible(true);
+	            Object value = fields[i].get(entity);
+	            statement.setObject(i + 1, value);
+	        }
+
+	        int affectedRows = statement.executeUpdate();
+	        if (affectedRows > 0) {
+	            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+	                if (generatedKeys.next()) {
+	                    return generatedKeys.getInt(1);
+	                }
+	            }
+	        }
+	    } catch (SQLException | IllegalAccessException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    return -1;
+	}
+
 	@Override
 	public void update(T entity) {
 		String tableName = getTableName();
@@ -101,24 +143,27 @@ public abstract class AbstractGenericDAO<T> implements GenericDAO<T> {
 	        setValues.append(fieldName).append(" = ?, ");
 	    }
 
-	    // Remove the trailing comma and space
+	    
 	    setValues.setLength(setValues.length() - 2);
 
 	    String query = "UPDATE " + tableName + " SET " + setValues + " WHERE " + getIdName() + " = ?";
-	    
+//	    System.out.println(query);
 	    try {
 	        PreparedStatement statement = connect.prepare(query);
 
-	        // Set the values for the prepared statement using reflection
+	        
 	        int index = 1;
 	        for (Field field : fields) {
 	            field.setAccessible(true);
+//	            System.out.println(field);
 	            Object value = field.get(entity);
+//	            System.out.println(value);
 	            statement.setObject(index, value);
 	            index++;
 	        }
 
-	        // Set the ID value for the WHERE clause
+	        
+//	        System.out.println(getIdFromEntity(entity));
 	        statement.setObject(index, getIdFromEntity(entity));
 	        statement.executeUpdate();
 	    } catch (SQLException | IllegalAccessException e) {
@@ -129,6 +174,7 @@ public abstract class AbstractGenericDAO<T> implements GenericDAO<T> {
 	@Override
 	public void delete(T entity) {
 		String query = "DELETE FROM " + getTableName() + " WHERE "+ getIdName() + " = ?";
+		System.out.println(query);
 		try{
 			PreparedStatement statement = connect.prepare(query);
 			statement.setInt(1, getIdFromEntity(entity));

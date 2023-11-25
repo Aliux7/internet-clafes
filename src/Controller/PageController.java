@@ -2,6 +2,10 @@ package Controller;
 
 import View.LandingPage;
 import View.LoginPage;
+import View.ManageJobPage;
+import View.ManagePCBookPage;
+import View.ManagePCPage;
+import View.ManageStaffPage;
 import View.RegisterPage;
 import View.ReportPage;
 import View.TransactionPage;
@@ -42,9 +46,21 @@ public class PageController {
 		Main.root.getChildren().add(new ReportPage());
 	}
 	
-//	public void showUserPage() {
-//		Main.root.getChildren().add(new ManageUserView());
-//	}
+	public void showManagePCPage() {
+		Main.root.getChildren().add(new ManagePCPage());
+	}
+	
+	public void showManageStaffPage() {
+		Main.root.getChildren().add(new ManageStaffPage());
+	}
+
+	public void showManageJobPage() {
+		Main.root.getChildren().add(new ManageJobPage());
+	}
+
+	public void showManagePCBookPage() {
+		Main.root.getChildren().add(new ManagePCBookPage());
+	}
 	
 
 }

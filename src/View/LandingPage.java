@@ -2,6 +2,7 @@ package View;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import Component.ComponentMaker;
 import Component.CustomerNavbar;
@@ -12,12 +13,16 @@ import Model.PC;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -34,7 +39,7 @@ public class LandingPage extends VBox implements ComponentMaker {
 	private Button removeBtn, orderBtn;
 	private DatePicker bookDatePicker;
 	private TextField pcIdField;
-	List<PC>list = PC_Controller.getPC_Controller().findAll();
+	List<PC>list = PC_Controller.getPC_Controller().getAllPCData();
 
 	private void createPCDisplay() {
 		pcPane = new FlowPane();
@@ -43,7 +48,7 @@ public class LandingPage extends VBox implements ComponentMaker {
 		pcPane.setPrefWidth(SCENE_WIDTH*0.6);
 		pcPane.setPadding(new Insets(40));
 
-		list = PC_Controller.getPC_Controller().findAll();
+		list = PC_Controller.getPC_Controller().getAllPCData();
 		
 		for(PC pc : list) {
 			VBox card = new VBox();
@@ -89,7 +94,7 @@ public class LandingPage extends VBox implements ComponentMaker {
 	@SuppressWarnings("unchecked")
 	private void createBookForm() {
 	    bookPane = new GridPane();
-	    Label titleLbl = createLabel(PRIMARY, "PC", "Arial", true, 40);
+	    Label titleLbl = createLabel(PRIMARY, "Book PC", "Arial", true, 40);
 	    bookPane.setHgap(10);
 	    bookPane.setVgap(10); 
 	    bookPane.setPadding(new Insets(10));
@@ -97,22 +102,32 @@ public class LandingPage extends VBox implements ComponentMaker {
 	    Label bookDateLabel = createLabel(PRIMARY, "Book Date:", "Arial", true, 14);
 	    Label pcIdLabel = createLabel(PRIMARY, "PC ID:", "Arial", true, 14);
 
-	    // Create input fields
 	    bookDatePicker = new DatePicker();
-	    pcIdField = new TextField();
 
-	    // Create the "Book" button
-	    Button bookButton = new Button("Book");
+        pcIdField = new TextField();
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String text = change.getText();
+
+            if (text.matches("[0-9]*")) {
+                return change; 
+            }
+
+            return null; 
+        };
+
+        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+        pcIdField.setTextFormatter(textFormatter);
+
+        Button bookButton = createButton("Book", 150, 30, 10, 0, 0, PRIMARY, WHITE, WHITE, "Arial", 12, true);
 	    bookButton.setOnAction(event -> {
-	        String selectedDate = bookDatePicker.getValue().toString();
-	        String pcId = pcIdField.getText();
+	            String pcId = pcIdField.getText().toString();
 
-	        System.out.println("Booking Date: " + selectedDate);
-	        System.out.println("PC ID: " + pcId);
-	        System.out.println("PC ID: " + list.get(Integer.valueOf(pcId)-1).getPC_Condition());
-	        PC_BookController.getPC_BookController().create(Integer.parseInt(pcId), AuthController.getAuthController().getCurrentUser().getUserID(), LocalDate.parse(selectedDate));
-	        bookDatePicker.setValue(null);
-	        pcIdField.setText("");
+	            boolean c = PC_BookController.getPC_BookController().addNewBook(pcId, AuthController.getAuthController().getCurrentUser().getUserID(), bookDatePicker.getValue());
+	            
+	            if(c) {
+	            	bookDatePicker.setValue(null);
+		            pcIdField.setText("");
+	            }
 	    });
 
 	    bookPane.add(titleLbl, 0, 0);
@@ -121,8 +136,7 @@ public class LandingPage extends VBox implements ComponentMaker {
 	    bookPane.add(pcIdLabel, 0, 2); 
 	    bookPane.add(pcIdField, 1, 2);
 	    
-	    // Add the "Book" button to the GridPane
-	    bookPane.add(bookButton, 0, 3, 2, 1); // Spanning 2 columns for full width
+	    bookPane.add(bookButton, 0, 3, 2, 1); 
 
 	    bookPane.setAlignment(Pos.CENTER);
 	    bookPane.setBackground(WHITE_BACKGROUND);

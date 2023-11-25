@@ -1,5 +1,6 @@
 package Repository;
 
+import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,17 @@ import java.util.List;
 import Model.TransactionHeader; 
 
 public class TransactionDAO extends AbstractGenericDAO<TransactionHeader>{
+	
+	private volatile static TransactionDAO instance;
+	
+	public static TransactionDAO getTransactionDAO() {
+		if(instance == null) {
+			synchronized (TransactionDAO.class) {
+				if(instance == null) instance = new TransactionDAO();
+			}
+		}
+		return instance;
+	}
 
 	public TransactionDAO() {
 		super(TransactionHeader.class);
@@ -19,6 +31,7 @@ public class TransactionDAO extends AbstractGenericDAO<TransactionHeader>{
 	protected String getTableName() {
 		return "TransactionHeader";
 	}
+	
 
 	@Override
 	protected TransactionHeader mapResultSetToObject(ResultSet resultSet) throws SQLException {

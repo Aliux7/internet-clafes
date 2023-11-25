@@ -32,7 +32,15 @@ public abstract class NavigationBar extends HBox implements ComponentMaker{
 		logoPane.getChildren().addAll(logoView, logoLbl);
 		logoPane.setAlignment(Pos.CENTER);
 		logoPane.setOnMouseClicked(e -> {
-			PageController.getPageController().showLandingPage();
+			if(AuthController.getAuthController().currentUser.getUserRole().equals("Customer")) {
+				PageController.getPageController().showLandingPage();				
+			}else if(AuthController.getAuthController().currentUser.getUserRole().equals("Admin")) {
+				PageController.getPageController().showManagePCPage();
+			}else if(AuthController.getAuthController().currentUser.getUserRole().equals("Operator")) {
+				PageController.getPageController().showManagePCBookPage();
+			}else if(AuthController.getAuthController().currentUser.getUserRole().equals("Computer Technician")) {
+				PageController.getPageController().showManageJobPage();
+			}
 		});
 		
 		logoMenu = new Menu("", logoPane);

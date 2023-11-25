@@ -65,4 +65,15 @@ public class Connect {
 		}
 		return preps;
 	}
+	
+	public PreparedStatement prepare(String query, int flags) {
+	    PreparedStatement preps = null;
+	    try {
+	        preps = con.prepareStatement(query, flags);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return preps;
+	}
+
 }

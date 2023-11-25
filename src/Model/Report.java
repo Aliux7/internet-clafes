@@ -1,6 +1,9 @@
 package Model;
 
 import java.time.LocalDate;
+import java.util.List;
+
+import Repository.ReportDAO;
 
 public class Report {
 
@@ -27,6 +30,11 @@ public class Report {
 		ReportNote = reportNote;
 		ReportDate = LocalDate.now();
 	}
+
+	public Report() {
+		// TODO Auto-generated constructor stub
+	}
+
 
 	public int getReport_ID() {
 		return Report_ID;
@@ -66,6 +74,16 @@ public class Report {
 
 	public void setReportDate(LocalDate reportDate) {
 		ReportDate = reportDate;
+	}
+
+
+	public void addNewReport(String userRole, String pC_ID, String reportNote) {
+		ReportDAO.getReportDAO().save(this);
+	}
+
+
+	public List<Report> getAllReportData() {
+		return ReportDAO.getReportDAO().findAll();
 	}
 	
 }

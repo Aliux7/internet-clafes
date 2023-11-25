@@ -30,8 +30,7 @@ public class AuthController {
 		Alert prompt = validateRegister(userName, userPassword, userConPass, userGender, userDOB);
 		prompt.showAndWait();
 		if (prompt.getAlertType().equals(AlertType.INFORMATION)) {
-			User user = new User(0, userName, userPassword, userGender.getText(), userDOB, "Customer"); 
-			userDAO.save(user);
+			UserController.getUserController().addNewUser(userName, userPassword, userGender.getText(), userDOB, "Customer");
 			PageController.getPageController().showLoginPage();
 		}
 	}
@@ -49,8 +48,14 @@ public class AuthController {
 				PageController.getPageController().showLandingPage();
 			}
 			else if(currentUser.getUserRole().equals("Admin")) {
-//				PageController.getPageController().showSupplementPage();
-			}			
+				PageController.getPageController().showManagePCPage();
+			}	
+			else if(currentUser.getUserRole().equals("Operator")) {
+				PageController.getPageController().showManagePCBookPage();
+			}	
+			else if(currentUser.getUserRole().equals("Computer Technician")) {
+				PageController.getPageController().showManageJobPage();
+			}	
 		}
 	}
 
@@ -58,14 +63,42 @@ public class AuthController {
 		currentUser = null;
 		PageController.getPageController().showLoginPage();
 	}
+	
+	private boolean isAlphanumeric(String str) {
+		boolean hasLetter = false;
+        boolean hasDigit = false;
+
+        for (char c : str.toCharArray()) {
+            if (Character.isLetter(c)) {
+                hasLetter = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            }
+        }
+        return hasLetter && hasDigit;
+    }
+	
+	private boolean isAgeInRange(LocalDate birthdate) {
+        LocalDate currentDate = LocalDate.now();
+        Period age = Period.between(birthdate, currentDate);
+
+//        System.out.println(age.getYears());
+        return age.getYears() >= 13 && age.getYears() <= 65;
+    }
 
 	private Alert validateRegister(String name, String password, String conpass, RadioButton gender, LocalDate userDOB) {
 		Alert prompt;
 		if (name.isEmpty() || name.equals("") || name.length() < 7) {
 			prompt = new Alert(AlertType.ERROR, "Name Minimal 7 character long!", ButtonType.OK);
 		}
+		else if (UserController.getUserController().getUserByName(name) != null) {
+			prompt = new Alert(AlertType.ERROR, "UserName already exist!", ButtonType.OK);
+		}
 		else if (password.isEmpty() || password.equals("") || password.length() < 6) {
 			prompt = new Alert(AlertType.ERROR, "Password Minimal 6 character long!", ButtonType.OK);
+		}
+		else if (!isAlphanumeric(password)) {
+			prompt = new Alert(AlertType.ERROR, "Password must contains alpha numeric character!", ButtonType.OK);
 		}
 		else if (!password.equals(conpass)) {
 			prompt = new Alert(AlertType.ERROR, "Password Not Matches!", ButtonType.OK);
@@ -73,17 +106,11 @@ public class AuthController {
 		else if(gender == null) {
 			prompt = new Alert(AlertType.ERROR, "Gender is empty!", ButtonType.OK);
 		}
-		else if(userDOB == null) {
-//			|| Period.between(userDOB, LocalDate.now()).getYears() < 13 || Period.between(userDOB, LocalDate.now()).getYears() > 65
+		else if(userDOB == null || !isAgeInRange(userDOB)) {
 			prompt = new Alert(AlertType.ERROR, "Must be between 13 – 65 Years Old!", ButtonType.OK);
 		}
 		else {
-			User user = (User) userDAO.select(name);
-			if (user != null) {
-				prompt = new Alert(AlertType.ERROR, "Name has already been used", ButtonType.OK);
-			}  else {
-				prompt = new Alert(AlertType.INFORMATION, "Sucess");
-			}
+			prompt = new Alert(AlertType.INFORMATION, "Success");
 		}	
 		return prompt;
 	}
@@ -101,7 +128,7 @@ public class AuthController {
 			if (user == null) {
 				prompt = new Alert(AlertType.ERROR, "User not Found", ButtonType.OK);
 			}  else {
-				System.out.println(user.getUserID());
+//				System.out.println(user.getUserID());
 				prompt = new Alert(AlertType.INFORMATION, "Success");
 				currentUser = user;
 			}

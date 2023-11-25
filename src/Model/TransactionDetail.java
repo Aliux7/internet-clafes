@@ -1,6 +1,9 @@
 package Model;
 
 import java.time.LocalDate;
+import java.util.List;
+
+import Repository.TransactionDetailDAO;
 
 public class TransactionDetail {
 
@@ -13,6 +16,10 @@ public class TransactionDetail {
 		PC_ID = pC_ID;
 		this.customerID = customerID;
 		this.bookedTime = bookedTime;
+	}
+
+	public TransactionDetail() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public int getTransactionID() {
@@ -31,11 +38,11 @@ public class TransactionDetail {
 		PC_ID = pC_ID;
 	}
 
-	public int getCustomerName() {
+	public int getCustomerID() {
 		return customerID;
 	}
 
-	public void setCustomerName(int customerID) {
+	public void setCustomerID(int customerID) {
 		this.customerID = customerID;
 	}
 
@@ -45,6 +52,22 @@ public class TransactionDetail {
 
 	public void setBookedTime(LocalDate bookedTime) {
 		this.bookedTime = bookedTime;
+	}
+
+	public void addTransactionDetail(int tid, List<PC_Book> books) {
+		for (PC_Book b : books) {
+			TransactionDetail td = new TransactionDetail(tid, b.getPC_ID(), b.getUserID(), b.getBookedDate());
+			TransactionDetailDAO.getTransactionDetailDAO().save(td);
+		}
+		
+	}
+
+	public List<TransactionDetail> getAllTransactionDetail(int transactionID) {
+		return TransactionDetailDAO.getTransactionDetailDAO().findAllByID(transactionID);
+	}
+
+	public List<TransactionDetail> getUserTransactionDetail(int userID) {
+		return TransactionDetailDAO.getTransactionDetailDAO().findAllByUser(userID);
 	}
 
 }

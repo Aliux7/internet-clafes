@@ -8,6 +8,17 @@ import Model.PC;
 import Model.Report;
 
 public class ReportDAO extends AbstractGenericDAO<Report>{
+	
+	private volatile static ReportDAO instance;
+	
+	public static ReportDAO getReportDAO() {
+		if(instance == null) {
+			synchronized (ReportDAO.class) {
+				if(instance == null) instance = new ReportDAO();
+			}
+		}
+		return instance;
+	}
 
 	public ReportDAO() {
 		super(Report.class);

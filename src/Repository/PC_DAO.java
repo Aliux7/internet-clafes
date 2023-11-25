@@ -8,6 +8,17 @@ import Connection.Connect;
 import Model.PC;
 
 public class PC_DAO extends AbstractGenericDAO<PC>{
+	
+	private volatile static PC_DAO instance;
+	
+	public static PC_DAO getPCDAO() {
+		if(instance == null) {
+			synchronized (PC_DAO.class) {
+				if(instance == null) instance = new PC_DAO();
+			}
+		}
+		return instance;
+	}
 
 	public PC_DAO() {
 		super(PC.class);
@@ -27,7 +38,7 @@ public class PC_DAO extends AbstractGenericDAO<PC>{
 
 	@Override
 	protected int getIdFromEntity(PC entity) {
-		return 0;
+		return entity.getPC_ID();
 	}
 	
 	public PC select(int PC_ID, String PC_Condition) {
@@ -65,7 +76,7 @@ public class PC_DAO extends AbstractGenericDAO<PC>{
 	}
 	
 	public PC select(int PC_ID) {
-		String query = "SELECT * FROM MsPC WHERE PC_ID = '"+PC_ID+"''";
+		String query = "SELECT * FROM MsPC WHERE PC_ID = '"+PC_ID+"'";
 
 		Connect connect = Connect.getConnection();
 		PreparedStatement ps = connect.prepare(query);
