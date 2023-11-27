@@ -105,15 +105,6 @@ public class TransactionPage extends VBox implements ComponentMaker{
             transactionDateColumn.setPrefWidth(columnWidth);
 
             transactionHTable.getColumns().addAll(headerIdColumn, staffIdColumn, staffNameColumn, transactionDateColumn);
-
-            transactionHTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    int selectedHeaderId = newValue.getTransactionID();
-                    List<TransactionDetail> detailData = TransactionController.getTransactionController().getAllTransactionDetail(selectedHeaderId);
-                    transactionData = FXCollections.observableList(detailData);
-                    transactionTable.setItems(transactionData);
-                }
-            });
             
             transactionTable = new TableView<>();
             transactionTable.setItems(transactionData);
@@ -135,6 +126,17 @@ public class TransactionPage extends VBox implements ComponentMaker{
             transactionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
             transactionTable.getColumns().setAll(c1, c2, c3, c4);
             
+            transactionHTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    int selectedHeaderId = newValue.getTransactionID();
+                    List<TransactionDetail> detailData = TransactionController.getTransactionController().getAllTransactionDetail(selectedHeaderId);
+                    transactionData = FXCollections.observableList(detailData);
+                    transactionTable.setItems(transactionData);
+                }
+            });
+
+            transactionHTable.getSelectionModel().selectFirst();
+       
             th.getChildren().addAll(headerTableLabel, transactionHTable);
             td.getChildren().addAll(detailTableLabel, transactionTable);
             
