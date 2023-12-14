@@ -59,7 +59,7 @@ public class JobController {
 			Job j = new Job(Integer.parseInt(userID), Integer.parseInt(pcID), "Uncomplete");
 			j.addNewJob(Integer.parseInt(userID), Integer.parseInt(pcID));
 			
-			PC_BookController.getPC_BookController().addNewBook(pcID, Integer.parseInt(userID) , LocalDate.now());
+			PC_BookController.getPC_BookController().addJobBook(pcID, Integer.parseInt(userID) , LocalDate.now());
 			
 			PC_Controller.getPC_Controller().updatePCCondition(pcID, "Maintenance");
 			

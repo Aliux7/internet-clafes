@@ -144,6 +144,12 @@ public class PC_BookController {
 		return v;
 	}
 	
+	public void addJobBook(String PC_ID, int userID, LocalDate bookedDate) {
+		PC_Book pc = new PC_Book(Integer.parseInt(PC_ID), userID, bookedDate);
+		pc.addNewBook(Integer.parseInt(PC_ID), userID, bookedDate);
+
+	}
+	
 	private Alert validateFinish(LocalDate date) {
 		Alert prompt;
 
